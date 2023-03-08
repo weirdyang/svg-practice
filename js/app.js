@@ -2,6 +2,7 @@ import { SVG } from '@svgdotjs/svg.js'
 import html2canvas from "html2canvas";
 import ResizeObserver from "resize-observer-polyfill";
 import FileSaver from "file-saver";
+document.addEventListener('DOMContentLoaded', () => {
 const WIDTH_FIXED = 1200;
 const HEIGHT_FIXED = 630;
 const socialImageSVG = document.querySelector(".social-image");
@@ -289,7 +290,7 @@ const resizeObserver = new ResizeObserver(() => {
 resizeObserver.observe(socialImageTitle);
 resizeObserver.observe(socialImageMeta);
 
-document.addEventListener('DOMContentLoaded', () => {
+
   setColours();
   generate = generateSpeckles;
   generate();
