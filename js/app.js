@@ -159,10 +159,7 @@ function generateSpeckles() {
   ];
   drawSpeckles(htmlRects);
 }
-function drawRandomShape(rect) {
-  const { x, y, width, height } = rect;
-  shapes.rect(width, height).x(x).y(y);
-}
+
 function randomColor() {
   // ~~ === shorthand for Math.floor()
   return shapeColors[~~random(0, shapeColors.length)];
