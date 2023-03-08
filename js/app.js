@@ -1,4 +1,4 @@
-import { A, SVG } from '@svgdotjs/svg.js'
+import { SVG } from '@svgdotjs/svg.js'
 import html2canvas from "html2canvas";
 import ResizeObserver from "resize-observer-polyfill";
 import FileSaver from "file-saver";
