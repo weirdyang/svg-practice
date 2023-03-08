@@ -2,8 +2,8 @@ import { SVG } from '@svgdotjs/svg.js'
 import html2canvas from "html2canvas";
 import ResizeObserver from "resize-observer-polyfill";
 import FileSaver from "file-saver";
-const WIDTH = 1200;
-const HEIGHT = 630;
+const WIDTH_FIXED = 1200;
+const HEIGHT_FIXED = 630;
 const socialImageSVG = document.querySelector(".social-image");
 const socialImageTitle = document.querySelector(".social-image__title");
 const socialImageMeta = document.querySelector(".social-image__meta");
@@ -129,10 +129,9 @@ function drawSpeckles(existing) {
   const numTextureShapes = 1440;
   // Light circles
     const circles = [...existing];
-    console.dir(existing);
     for (let i = 0; i < numTextureShapes; i++) {
-     const x = random(0, WIDTH);
-      const y = random(0, HEIGHT);
+     const x = random(0, WIDTH_FIXED);
+      const y = random(0, HEIGHT_FIXED);
       const radius = random(1, 6);
       const width = radius * 2;
       const height = radius * 2;
