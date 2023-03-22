@@ -5,6 +5,7 @@ import FileSaver from "file-saver";
 document.addEventListener('DOMContentLoaded', () => {
 const WIDTH_FIXED = 1200;
 const HEIGHT_FIXED = 630;
+const MIN_DIST = 24;
 const socialImageSVG = document.querySelector(".social-image");
 const socialImageTitle = document.querySelector(".social-image__title");
 const socialImageMeta = document.querySelector(".social-image__meta");
@@ -30,7 +31,19 @@ const alignmentOpts = ["flex-start", "flex-end", "center"];
 
 const background = [""]
 const shapes = SVG(socialImageSVG).group();
+function createWeightedSelector(items) {
+  const weightedArray = [];
 
+  for (const item of items) {
+    for (let i = 0; i < item.weight; i++) {
+      weightedArray.push(item.value);
+    }
+  }
+
+  return function () {
+    return weightedArray[Math.floor(Math.random() * weightedArray.length)];
+  };
+}
 function random(min, max) {
   return Math.random() * (max - min) + min;
 }
@@ -127,6 +140,7 @@ function generateShapes() {
   }
 }
 function drawSpeckles(existing) {
+  console.log('drawing speckles')
   const numTextureShapes = 1440;
   // Light circles
     const circles = [...existing];
@@ -145,7 +159,9 @@ function drawSpeckles(existing) {
     }
     for (const circle of circles) {
       const { radius, x, y } = circle;
-      shapes.circle(radius).cx(x).cy(y).fill(randomSpeckleColour());
+      let shape = shapes.circle(radius).cx(x).cy(y).fill(randomSpeckleColour());
+      shape.node.classList.add('shape');
+      console.log(shape);
     }
 }
 function randomSpeckleColour(){
@@ -201,11 +217,11 @@ function drawRandomShape({ x, y, width, height }) {
   shape.rotate(random(0, 90)).scale(0.825);
   shape.opacity(random(0.5, 1));
 }
-let speckles = true;
+
 // regenerate our shapes and shape positions
 shapesBtn.addEventListener("click", () => {
-  speckles = !speckles;
-  generate = speckles ? generateSpeckles : generateShapes;
+  generate = randomGenerator();
+  console.log(generate);
   generate();
 });
 
@@ -215,9 +231,11 @@ colorBtn.addEventListener("click", () => {
 
   // find all the shapes in our svg and update their fill / stroke
   socialImageSVG.querySelectorAll(".shape").forEach((node) => {
+    console.log(node);
     if (node.getAttribute("stroke")) {
       node.setAttribute("stroke", randomColor());
     } else {
+      console.log(node);
       node.setAttribute("fill", randomColor());
     }
   });
@@ -282,6 +300,58 @@ saveBtn.addEventListener("click", () => {
     });
   });
 });
+function generateCircles() {
+  const htmlRects = [
+    relativeBounds(socialImageSVG, socialImageTitle),
+    relativeBounds(socialImageSVG, socialImageMeta)
+  ];
+  drawCircles(htmlRects);
+}
+function drawCircles(existing) {
+  shapes.clear();
+  const numTextureShapes = 1440;
+  // Light circles
+    const circles = [...existing];
+    for (let i = 0; i < numTextureShapes; i++) {
+     const x = random(0, WIDTH_FIXED);
+      const y = random(0, HEIGHT_FIXED);
+      const radius = random(1, 6);
+      const width = radius * 2;
+      const height = radius * 2;
+      const circle = {
+        x, y, radius, width, height
+      }
+      if (!circles.some((r) => detectRectCollision(r, circle))) {
+        circles.push(circle);
+      }
+    }
+  const pickColor = createWeightedSelector([
+    {
+      weight:60,
+      value: "#053043"
+    },
+    {
+      weight: 30,
+      value: "#F37247"
+    },
+    {
+      weight: 10,
+      value: "#F7C881"
+    }
+  ]);
+
+  for (const point of circles) {
+    const color = pickColor();
+    const { x, y } = point;
+    let shape = shapes
+      .circle(MIN_DIST)
+      .cx(x)
+      .cy(y)
+      .fill(color)
+      .scale(random(0, 1));
+    shape.node.classList.add('shape');
+  }
+}
 
 const resizeObserver = new ResizeObserver(() => {
   generate();
@@ -289,9 +359,12 @@ const resizeObserver = new ResizeObserver(() => {
 
 resizeObserver.observe(socialImageTitle);
 resizeObserver.observe(socialImageMeta);
+const generators = [generateCircles, generateSpeckles, generateShapes]
+function randomGenerator() {
+  return generators[~~random(0, generators.length)];
+}
+setColours();
+generate = generateSpeckles;
+generate();
 
-
-  setColours();
-  generate = generateSpeckles;
-  generate();
 })
