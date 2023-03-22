@@ -2,6 +2,7 @@ import { SVG } from '@svgdotjs/svg.js'
 import html2canvas from "html2canvas";
 import ResizeObserver from "resize-observer-polyfill";
 import FileSaver from "file-saver";
+
 document.addEventListener('DOMContentLoaded', () => {
 const WIDTH_FIXED = 1200;
 const HEIGHT_FIXED = 630;
@@ -47,16 +48,28 @@ function createWeightedSelector(items) {
 function random(min, max) {
   return Math.random() * (max - min) + min;
 }
+const pairs = [
+  [ 30, 60 ],
+  [ 120, 240 ],
+  [ 0, 180 ],
+  [ 90, 180 ],
+  [ 150, 210 ],
+]
+function randomPairs(){
+  return pairs[~~random(0, pairs.length)];
+}
+
  function setColors() {
   const baseHue = random(0, 360);
-  const saturation = random(60, 90);
+  const saturation = random(0, 90);
+  const angles = randomPairs();
 
   baseColor = `hsl(${baseHue}, ${saturation}%, 60%)`;
   baseColorWhite = `hsl(${baseHue}, ${saturation}%, 97%)`;
   baseColorBlack = `hsl(${baseHue}, 95%, 3%)`;
 
-  complimentaryColor1 = `hsl(${baseHue + 90}, ${saturation}%, 60%)`;
-  complimentaryColor2 = `hsl(${baseHue + 180}, ${saturation}%, 60%)`;
+  complimentaryColor1 = `hsl(${baseHue + angles[0]}, ${saturation}%, 60%)`;
+  complimentaryColor2 = `hsl(${baseHue + angles[1]}, ${saturation}%, 60%)`;
 
   shapeColors = [complimentaryColor1, complimentaryColor2, baseColor];
 
@@ -140,8 +153,8 @@ function generateShapes() {
   }
 }
 function drawSpeckles(existing) {
-  console.log('drawing speckles')
-  const numTextureShapes = 1440;
+
+  const numTextureShapes = 60 * 60 * 60;
   // Light circles
     const circles = [...existing];
     for (let i = 0; i < numTextureShapes; i++) {
@@ -161,7 +174,7 @@ function drawSpeckles(existing) {
       const { radius, x, y } = circle;
       let shape = shapes.circle(radius).cx(x).cy(y).fill(randomSpeckleColour());
       shape.node.classList.add('shape');
-      console.log(shape);
+
     }
 }
 function randomSpeckleColour(){
@@ -179,6 +192,7 @@ function generateSpeckles() {
 
 function randomColor() {
   // ~~ === shorthand for Math.floor()
+  console.log('colors', random(0, shapeColors.length));
   return shapeColors[~~random(0, shapeColors.length)];
 }
 
@@ -221,7 +235,7 @@ function drawRandomShape({ x, y, width, height }) {
 // regenerate our shapes and shape positions
 shapesBtn.addEventListener("click", () => {
   generate = randomGenerator();
-  console.log(generate);
+
   generate();
 });
 
@@ -231,11 +245,11 @@ colorBtn.addEventListener("click", () => {
 
   // find all the shapes in our svg and update their fill / stroke
   socialImageSVG.querySelectorAll(".shape").forEach((node) => {
-    console.log(node);
+
     if (node.getAttribute("stroke")) {
       node.setAttribute("stroke", randomColor());
     } else {
-      console.log(node);
+
       node.setAttribute("fill", randomColor());
     }
   });
